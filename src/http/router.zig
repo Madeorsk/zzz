@@ -35,13 +35,13 @@ pub fn RouterBuilder(comptime Server: type, comptime UserState: type) type {
         pub const _Router = Router(Server, UserState);
 
         /// Not found route.
-        notFoundRoute: Route = Route.init("").get(defaultNotFoundHandler(Server, UserState)),
+        notFoundRoute: Route = Route.init("").all(defaultNotFoundHandler(Server, UserState)),
 
         /// Return a new builder with a defined not found handler.
         pub fn withNotFound(comptime _: *const Self, comptime notFoundHandler: ?Route.HandlerFn) Self {
             return Self{
                 // Build the not found route: use the provided handler if there is one, or a default one otherwise.
-                .notFoundRoute = comptime Route.init("").get(if (notFoundHandler) |handler| handler else defaultNotFoundHandler(Server, UserState)),
+                .notFoundRoute = comptime Route.init("").all(if (notFoundHandler) |handler| handler else defaultNotFoundHandler(Server, UserState)),
             };
         }
 
