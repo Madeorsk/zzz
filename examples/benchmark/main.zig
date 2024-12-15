@@ -11,6 +11,7 @@ const Runtime = tardy.Runtime;
 const Server = http.Server(.plain, void);
 const Context = Server.Context;
 const Route = Server.Route;
+const RouterBuilder = Server.RouterBuilder;
 const Router = Server.Router;
 
 pub const std_options = .{
@@ -60,7 +61,7 @@ pub fn main() !void {
     });
     defer t.deinit();
 
-    var router = Router.init({}, &[_]Route{
+    var router = RouterBuilder.init({}, &[_]Route{
         Route.init("/").serve_embedded_file(http.Mime.HTML, @embedFile("index.html")),
         Route.init("/hi/%s").get(hi_handler),
     });

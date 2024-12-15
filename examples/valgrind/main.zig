@@ -8,6 +8,7 @@ const Tardy = tardy.Tardy(.auto);
 const Runtime = tardy.Runtime;
 
 const Server = http.Server(.plain, void);
+const RouterBuilder = Server.RouterBuilder;
 const Router = Server.Router;
 const Context = Server.Context;
 const Route = Server.Route;
@@ -20,7 +21,7 @@ pub fn main() !void {
     const allocator = gpa.allocator();
     defer _ = gpa.deinit();
 
-    var router = Router.init({}, &[_]Route{
+    var router = RouterBuilder.init({}, &[_]Route{
         Route.init("/").get(struct {
             pub fn handler_fn(ctx: *Context) !void {
                 const body =

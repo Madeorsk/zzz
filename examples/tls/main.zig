@@ -18,6 +18,7 @@ const Server = http.Server(.{ .tls = .{
 const Context = Server.Context;
 const Route = Server.Route;
 const Router = Server.Router;
+const RouterBuilder = Server.RouterBuilder;
 
 pub fn main() !void {
     const host: []const u8 = "0.0.0.0";
@@ -29,7 +30,7 @@ pub fn main() !void {
     const allocator = gpa.allocator();
     defer _ = gpa.deinit();
 
-    var router = Router.init({}, &[_]Route{
+    var router = RouterBuilder.init({}, &[_]Route{
         Route.init("/embed/pico.min.css").serve_embedded_file(http.Mime.CSS, @embedFile("embed/pico.min.css")),
 
         Route.init("/").get(struct {

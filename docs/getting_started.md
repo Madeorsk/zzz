@@ -25,6 +25,7 @@ const Tardy = tardy.Tardy(.auto);
 const Runtime = tardy.Runtime;
 
 const Server = http.Server(.plain, *const i8);
+const RouterBuilder = Server.RouterBuilder;
 const Router = Server.Router;
 const Context = Server.Context;
 const Route = Server.Route;
@@ -47,7 +48,17 @@ pub fn main() !void {
 
     const num: i8 = 12;
 
-    var router = Router.init(&num, &[_]Route{
+    var router = RouterBuilder
+    .withNotFound(struct {
+        fn handler_fn(ctx: *Context) !void {
+            try ctx.respond(.{
+                .status = .@"Not Found",
+                .mime = http.Mime.HTML,
+                .body = "Not Found Handler!",
+            });
+        }
+    }.handler_fn)
+    .init(&num, &[_]Route{
         Route.init("/").get(struct {
             fn handler_fn(ctx: *Context) !void {
                 const body_fmt =
@@ -88,16 +99,6 @@ pub fn main() !void {
             }
         }.handler_fn),
     });
-
-    router.serve_not_found(Route.init("").get(struct {
-        fn handler_fn(ctx: *Context) !void {
-            try ctx.respond(.{
-                .status = .@"Not Found",
-                .mime = http.Mime.HTML,
-                .body = "Not Found Handler!",
-            });
-        }
-    }.handler_fn));
 
     // This provides the entry function into the Tardy runtime. This will run
     // exactly once inside of each runtime (each thread gets a single runtime).

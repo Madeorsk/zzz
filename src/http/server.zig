@@ -21,6 +21,7 @@ const _SSE = @import("sse.zig").SSE;
 const Provision = @import("provision.zig").Provision;
 const Mime = @import("mime.zig").Mime;
 const _Router = @import("router.zig").Router;
+const DefaultRouterBuilder = @import("router.zig").DefaultRouterBuilder;
 const _Route = @import("router/route.zig").Route;
 const HTTPError = @import("lib.zig").HTTPError;
 
@@ -157,6 +158,7 @@ pub fn Server(comptime security: Security, comptime UserState: type) type {
         const Self = @This();
         pub const Context = _Context(Self, UserState);
         pub const Router = _Router(Self, UserState);
+        pub const RouterBuilder = DefaultRouterBuilder(Self, UserState);
         pub const Route = _Route(Self, UserState);
         pub const SSE = _SSE(Self, UserState);
         allocator: std.mem.Allocator,

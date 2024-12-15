@@ -9,6 +9,7 @@ const Tardy = tardy.Tardy(.auto);
 const Runtime = tardy.Runtime;
 
 const Server = http.Server(.plain, void);
+const RouterBuilder = Server.RouterBuilder;
 const Router = Server.Router;
 const Context = Server.Context;
 const Route = Server.Route;
@@ -80,7 +81,7 @@ pub fn main() !void {
     });
     defer t.deinit();
 
-    var router = Router.init({}, &[_]Route{
+    var router = RouterBuilder.init({}, &[_]Route{
         Route.init("/").serve_embedded_file(http.Mime.HTML, @embedFile("index.html")),
         Route.init("/hi/%s").get(hi_handler),
         Route.init("/redirect").get(redir_handler),

@@ -12,6 +12,7 @@ const Server = http.Server(.plain, void);
 const Context = Server.Context;
 const Route = Server.Route;
 const Router = Server.Router;
+const RouterBuilder = Server.RouterBuilder;
 
 pub const std_options = .{
     .log_level = .err,
@@ -36,7 +37,7 @@ pub fn main() !void {
     });
     defer t.deinit();
 
-    var router = Router.init({}, &[_]Route{
+    var router = RouterBuilder.init({}, &[_]Route{
         Route.init("/").get(root_handler)
     });
 
