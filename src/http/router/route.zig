@@ -8,6 +8,7 @@ const Request = @import("../request.zig").Request;
 const Response = @import("../response.zig").Response;
 const Mime = @import("../mime.zig").Mime;
 
+const RoutesGroup = @import("routes_group.zig").RoutesGroup;
 const _FsDir = @import("fs_dir.zig").FsDir;
 const _Context = @import("../context.zig").Context;
 
@@ -19,6 +20,11 @@ pub fn Route(comptime Server: type, comptime UserState: type) type {
 
         const Self = @This();
         pub const HandlerFn = *const fn (context: *Context) anyerror!void;
+
+        /// Define a group of routes.
+        pub fn Group(comptime _routes: []const Self) RoutesGroup(Server, UserState, _routes) {
+            return RoutesGroup(Server, UserState, _routes){};
+        }
 
         /// Defined route path.
         path: []const u8,
