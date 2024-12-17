@@ -11,12 +11,14 @@ const Mime = @import("../mime.zig").Mime;
 const RoutesGroup = @import("routes_group.zig").RoutesGroup;
 const _FsDir = @import("fs_dir.zig").FsDir;
 const _Context = @import("../context.zig").Context;
+const _MiddlewareFn = @import("middleware.zig").MiddlewareFn;
 
 /// Structure of a server route definition.
 pub fn Route(comptime Server: type, comptime AppState: type) type {
     return struct {
         const Context = _Context(Server, AppState);
         const FsDir = _FsDir(Server, AppState);
+        const MiddlewareFn = _MiddlewareFn(Server, AppState);
 
         const Self = @This();
         pub const HandlerFn = *const fn (context: *Context) anyerror!void;
@@ -93,6 +95,41 @@ pub fn Route(comptime Server: type, comptime AppState: type) type {
                 .path = path,
                 .handlers = self.handlers,
             };
+        }
+
+        /// Apply the provided middleware to all defined handlers.
+        pub fn apply_middleware(comptime self: *const Self, comptime middleware: MiddlewareFn) Self {
+            return Self{
+                .path = self.path,
+                .handlers = comptime new_handlers: {
+                    // Copy existing handlers.
+                    var new_handlers = self.handlers;
+
+                    for (&new_handlers) |*handler| {
+                        // For each defined handler, encapsulate the handler function with the provided middleware.
+                        if (handler.*) |handler_fn| {
+                            // Update the defined handler: call the middleware first.
+                            handler.* = struct {
+                                fn f(ctx: *Context) !void {
+                                    // Call the middleware with the current handler function as the next one to call.
+                                    try middleware(ctx, handler_fn);
+                                }
+                            }.f;
+                        }
+                    }
+                    break :new_handlers new_handlers;
+                },
+            };
+        }
+
+        /// Apply the provided middlewares to all defined handlers.
+        pub fn apply_middlewares(comptime self: *const Self, comptime middlewares: []const MiddlewareFn) Self {
+            var newSelf = self.*;
+            inline for (middlewares) |middleware| {
+                // Apply each middleware to the self copy.
+                newSelf = self.apply_middleware(middleware);
+            }
+            return newSelf;
         }
 
         /// Set a handler function for the provided method.

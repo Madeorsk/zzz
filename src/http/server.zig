@@ -22,6 +22,7 @@ const Provision = @import("provision.zig").Provision;
 const Mime = @import("mime.zig").Mime;
 const _Router = @import("router.zig").Router;
 const _Route = @import("router/route.zig").Route;
+const _NextMiddlewareFn = @import("router/middleware.zig").NextMiddlewareFn;
 const HTTPError = @import("lib.zig").HTTPError;
 
 const AfterType = @import("../core/job.zig").AfterType;
@@ -158,6 +159,7 @@ pub fn Server(comptime security: Security, comptime AppState: type) type {
         pub const Context = _Context(Self, AppState);
         pub const Router = _Router(Self, AppState);
         pub const Route = _Route(Self, AppState);
+        pub const NextMiddlewareFn = _NextMiddlewareFn(Self, AppState);
         pub const SSE = _SSE(Self, AppState);
         allocator: std.mem.Allocator,
         config: ServerConfig,

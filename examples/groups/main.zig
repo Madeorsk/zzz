@@ -102,7 +102,13 @@ pub fn main() !void {
                     });
                 }
             }.handler_fn)
-        }).prefix("/foo").routes(),
+        }).set_prefix("/foo").add_middleware(struct {
+            fn f(ctx: *Context, next: Server.NextMiddlewareFn) !void {
+                std.debug.print("before request handler: {?s}\n", .{ctx.request.uri});
+                try next(ctx);
+                std.debug.print("after request handler: {?s}\n", .{ctx.request.uri});
+            }
+        }.f).routes(),
         .{
             .not_found_handler = struct {
                 fn handler_fn(ctx: *Context) !void {
